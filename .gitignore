@@ -1,0 +1,36 @@
+# Secrets / local config
+config/app_simple.php
+config/app.php
+config/secrets.local.php
+config/mail.local.php
+.env
+.env.local
+.env.*.local
+php_action/db_connect.php
+
+# Real data dumps (contain live password hashes)
+DATABASE FILE/*.sql
+
+# Credential notes (scattered across several subdirectories)
+**/01 LOGIN DETAILS & PROJECT INFO.txt
+
+# Runtime logs / rate-limit files
+logs/
+php_action/logs/
+
+# User-uploaded content
+assests/images/stock/
+
+# OS junk
+.DS_Store
+**/.DS_Store
+
+# Claude Code local session/config (not part of the app)
+.claude/
+
+# Mobile app build artifacts (has its own nested .gitignore too)
+InventoryCustomerApp/node_modules/
+InventoryCustomerApp/.expo/
+
+# Throwaway live-verification scripts (never committed)
+scratch/

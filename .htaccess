@@ -1,0 +1,48 @@
+# SimpleInventorySystem-PHP — root .htaccess
+#
+# Confirmed against /Applications/XAMPP/xamppfiles/etc/httpd.conf: the
+# <Directory> block for this htdocs root has "AllowOverride All", so these
+# directives are honored. mod_expires, mod_headers, and mod_rewrite are all
+# loaded there (LoadModule lines uncommented) — but every block below is
+# still wrapped in <IfModule> as a graceful no-op guard in case a future
+# install has one of them disabled, so this file can never 500 the site.
+
+# ── Disable directory listing ────────────────────────────────────────────
+Options -Indexes
+
+# ── Block direct HTTP access to sensitive file types ─────────────────────
+# PHP `include`/`require` reads files off disk directly and is NOT affected
+# by this — it only blocks a browser/curl fetching the URL directly.
+# Works for Apache 2.4 (Require) and falls back to the 2.2 syntax
+# (Order/Deny) if mod_access_compat is what's present instead.
+<FilesMatch "\.(sql|txt|log|md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ── Block direct HTTP access to sensitive directories ─────────────────────
+# (PHP includes from these directories still work server-side — this only
+# blocks a direct HTTP request to a URL under one of them.)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(logs|DATABASE\ FILE|migrations|docs|config)(/|$) - [F,L]
+</IfModule>
+
+# ── Static asset caching (perf win) ───────────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    <FilesMatch "\.(css|js|png|jpe?g|gif|svg|ico|webp|woff2?|ttf|eot)$">
+        ExpiresDefault "access plus 30 days"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|png|jpe?g|gif|svg|ico|webp|woff2?|ttf|eot)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>
